@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penilaian Kokurikuler - SMA Negeri 1 Krembung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom radio button styles for cards */
+        input[type="radio"]:checked + div {
+            border-color: #3b82f6; /* Blue 500 */
+            background-color: #eff6ff; /* Blue 50 */
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+        }
+        input[type="radio"]:checked + div .level-badge {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .smooth-transition { transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen pb-40">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjhEe7DsQaweQWtckuBY0QdRPB_J0RbHqfSXb0fFnNGOQYwfzbn9SyTV1WORteNpd7S3rcGj3FYpaCf0X7tjQpcXoDfErD-aWPD9kTf-6auJIoAZ3ETmXpvuoVydS7H87HO-vidqv4ECyayUG4dFJNZNMuVWD2lUyaMaF7ox5BYCfAksicgx7ryvy6V56Z/s166/LOGO%20SMANIKRE%20(1).png" alt="Logo SMAN 1 Krembung" class="w-10 h-10 object-contain">
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900 leading-tight">Asesmen Sumatif Kokurikuler</h1>
+                    <p class="text-xs text-gray-500">SMA Negeri 1 Krembung</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('setup-modal').classList.remove('hidden')" class="text-sm text-blue-600 hover:text-blue-800 underline font-medium">
+                Cara Setting
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+        
+        <!-- KOP SEKOLAH -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row items-center text-center sm:text-left gap-6">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjhEe7DsQaweQWtckuBY0QdRPB_J0RbHqfSXb0fFnNGOQYwfzbn9SyTV1WORteNpd7S3rcGj3FYpaCf0X7tjQpcXoDfErD-aWPD9kTf-6auJIoAZ3ETmXpvuoVydS7H87HO-vidqv4ECyayUG4dFJNZNMuVWD2lUyaMaF7ox5BYCfAksicgx7ryvy6V56Z/s166/LOGO%20SMANIKRE%20(1).png" alt="Logo SMA Negeri 1 Krembung" class="w-24 h-24 object-contain">
+            <div class="flex-grow w-full text-center">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 uppercase tracking-wide">SMA Negeri 1 Krembung</h2>
+                <h3 class="text-lg font-semibold text-blue-700 mt-1">Penilaian Asesmen Sumatif Kokurikuler</h3>
+                <div class="w-16 h-1 bg-blue-600 mx-auto my-3 rounded-full"></div>
+                <p class="text-md font-medium text-gray-700 italic">Tema: "Lingkungan Belajar yang Asri dan Nyaman"</p>
+            </div>
+            <div class="w-24 hidden sm:block"></div> <!-- Spacer for centering -->
+        </div>
+
+        <!-- 
+          UBAH ACTION DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA NANTI 
+        -->
+        <form id="grading-form" name="submit-to-google-sheet">
+            
+            <!-- Metadata Section -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">Informasi Penilaian</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Juri</label>
+                        <input type="text" name="nama_juri" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Masukkan nama Anda">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kelas yang Dinilai</label>
+                        <input type="text" name="kelas" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Contoh: X-A">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tempat Rubrik akan di-render oleh JavaScript -->
+            <div id="rubric-container" class="space-y-8"></div>
+
+            <!-- Hidden input to store total score for form submission -->
+            <input type="hidden" name="total_score" id="total_score_input" value="0">
+
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40 p-4 pb-8">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-2">
+                        <div class="text-center sm:text-left">
+                            <p class="text-sm text-gray-500 font-medium">Total Nilai Akhir</p>
+                            <p class="text-3xl font-bold text-blue-600" id="display-total-score">0 <span class="text-sm text-gray-400 font-normal">/ 100</span></p>
+                        </div>
+                        <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <span>Simpan Penilaian</span>
+                            <svg id="loading-spinner" class="animate-spin hidden h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Footer Info -->
+                    <div class="text-center mt-2 border-t pt-2">
+                        <p class="text-xs text-gray-400 font-medium tracking-wide">Created by: Ulfatul Husna, S.Ag.,M.Pd.</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <div id="setup-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-xl font-bold text-gray-900">Cara Menghubungkan ke Spreadsheet</h3>
+                <button onclick="document.getElementById('setup-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="prose prose-sm text-gray-700">
+                <ol class="list-decimal pl-5 space-y-2">
+                    <li>Buat Google Spreadsheet baru.</li>
+                    <li>Buat Header di Baris 1 (Penting: Huruf kecil semua sesuai `name` di input): 
+                        <code>timestamp</code>, <code>nama_juri</code>, <code>kelas</code>, <code>aspek_1</code>, <code>aspek_2</code>, <code>aspek_3</code>, <code>aspek_4</code>, <code>aspek_5</code>, <code>total_score</code>.</li>
+                    <li>Klik menu <strong>Ekstensi</strong> > <strong>Apps Script</strong>.</li>
+                    <li>Hapus kode yang ada, lalu *paste* kode dari file <code>Code.gs</code> yang diberikan oleh AI.</li>
+                    <li>Simpan (Ctrl+S).</li>
+                    <li>Jalankan fungsi <code>initialSetup</code> sekali saja. Akan muncul pop-up izin, setujui (lanjutkan ke tidak aman/advanced).</li>
+                    <li>Klik tombol <strong>Terapkan</strong> (Deploy) di pojok kanan atas > <strong>Deployment baru</strong>.</li>
+                    <li>Pilih jenis: <strong>Aplikasi Web</strong>.</li>
+                    <li>Akses: Pilih <strong>Siapa saja</strong> (Anyone).</li>
+                    <li>Klik Terapkan. Salin <strong>URL Aplikasi Web</strong>.</li>
+                    <li>Buka kembali file <code>index.html</code> (di editor atau GitHub), cari variabel <code>scriptURL</code> di bagian bawah (JavaScript), ganti nilainya dengan URL yang baru Anda salin.</li>
+                </ol>
+            </div>
+            <button onclick="document.getElementById('setup-modal').classList.add('hidden')" class="mt-6 w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // Data rubrik diadaptasi persis dari PDF yang diunggah
+        const rubricData = [
+            {
+                id: 'aspek_1',
+                title: '1. Mini Garden & Keramahan Lingkungan',
+                weight: 25,
+                criteria: [
+                    { level: 'Sangat Baik (Extended Abstract)', score: 100, desc: 'Pot 100% non-plastik, tanaman (bunga/buah) tertata sangat asri, memanfaatkan bahan daur ulang ramah lingkungan secara inovatif.' },
+                    { level: 'Baik (Relational)', score: 75, desc: 'Pot non-plastik, tanaman segar dan tertata rapi, menggunakan bahan ramah lingkungan.' },
+                    { level: 'Cukup (Multistruktural)', score: 50, desc: 'Sebagian pot masih menggunakan unsur plastik/kurang tertata rapi.' },
+                    { level: 'Kurang (Unistruktural / Prestructural)', score: 25, desc: 'Pot tidak sesuai ketentuan/tanaman tidak terawat.' }
+                ]
+            },
+            {
+                id: 'aspek_2',
+                title: '2. Estetika Interior & Dekorasi Kelas',
+                weight: 20,
+                criteria: [
+                    { level: 'Sangat Baik (Extended Abstract)', score: 100, desc: 'Cat dalam kelas rapi dan bersih, tanpa mural, tempat sapu terhias unik, stiker kaca terpasang presisi, kelas sangat nyaman.' },
+                    { level: 'Baik (Relational)', score: 75, desc: 'Cat dalam kelas rapi, tanpa mural, tempat sapu terhias rapi, kelas bersih dan nyaman.' },
+                    { level: 'Cukup (Multistruktural)', score: 50, desc: 'Cat dalam kelas kurang rapi atau tempat sapu belum didekorasi.' },
+                    { level: 'Kurang (Unistruktural / Prestructural)', score: 25, desc: 'Terdapat mural / melanggar aturan pengecatan luar / kelas tidak rapi.' }
+                ]
+            },
+            {
+                id: 'aspek_3',
+                title: '3. Kelengkapan Jurnal Harian',
+                weight: 15,
+                criteria: [
+                    { level: 'Sangat Baik (Extended Abstract)', score: 100, desc: 'Jurnal memuat catatan rinci dari tahap awal hingga akhir, disertai refleksi kritis dan solusi atas kendala.' },
+                    { level: 'Baik (Relational)', score: 75, desc: 'Jurnal memuat proses persiapan hingga akhir secara kronologis dan jelas.' },
+                    { level: 'Cukup (Multistruktural)', score: 50, desc: 'Jurnal kurang lengkap, ada beberapa tahapan yang tidak terdata.' },
+                    { level: 'Kurang (Unistruktural / Prestructural)', score: 25, desc: 'Jurnal dibuat secara asal-asalan / tidak ada jurnal.' }
+                ]
+            },
+            {
+                id: 'aspek_4',
+                title: '4. Kualitas Video Pendek',
+                weight: 15,
+                criteria: [
+                    { level: 'Sangat Baik (Extended Abstract)', score: 100, desc: 'Video (2-3 menit) informatif, estetik, merekam dinamika kolaborasi, dan menginspirasi.' },
+                    { level: 'Baik (Relational)', score: 75, desc: 'Video merekam alur kegiatan dari awal hingga akhir dengan jelas.' },
+                    { level: 'Cukup (Multistruktural)', score: 50, desc: 'Video kurang fokus pada proses kerja / kualitas teknis rendah.' },
+                    { level: 'Kurang (Unistruktural / Prestructural)', score: 25, desc: 'Video tidak sesuai durasi / tidak menyajikan proses kerja.' }
+                ]
+            },
+            {
+                id: 'aspek_5',
+                title: '5. Laporan (Khusus Nominasi)',
+                weight: 25,
+                criteria: [
+                    { level: 'Sangat Baik (Extended Abstract)', score: 100, desc: 'Laporan terstruktur sistematis, berbasis data jurnal, visual komunikatif; memuat: Pengantar, Tujuan, Pelaksanaan, dan Penutup.' },
+                    { level: 'Baik (Relational)', score: 75, desc: 'Laporan rapi dan informatif; memuat: Pengantar, Tujuan, Pelaksanaan, dan Penutup.' },
+                    { level: 'Cukup (Multistruktural)', score: 50, desc: 'Laporan kurang informatif yang menggambarkan mulai persiapan hingga hasil.' },
+                    { level: 'Kurang (Unistruktural / Prestructural)', score: 25, desc: 'Laporan tidak lengkap (asal asalan).' }
+                ]
+            }
+        ];
+
+        const container = document.getElementById('rubric-container');
+        let currentScores = {};
+
+        // Render form secara dinamis
+        rubricData.forEach((aspect, index) => {
+            currentScores[aspect.id] = 0; // Initialize scores
+
+            const section = document.createElement('section');
+            section.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100';
+            
+            const header = `
+                <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                    <h3 class="font-bold text-gray-800 text-lg">${aspect.title}</h3>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Bobot: ${aspect.weight}%</span>
+                </div>
+            `;
+            
+            let cards = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">';
+            aspect.criteria.forEach((crit, cIdx) => {
+                // Konversi nilai 100 ke point (4,3,2,1) hanya untuk visual, sistem menghitung persentase
+                const pointValue = crit.score === 100 ? 4 : crit.score === 75 ? 3 : crit.score === 50 ? 2 : 1;
+                
+                cards += `
+                    <label class="relative cursor-pointer h-full">
+                        <input type="radio" name="${aspect.id}" value="${crit.score}" class="hidden" required onchange="updateScore('${aspect.id}', ${crit.score}, ${aspect.weight})">
+                        <div class="h-full border-2 border-gray-200 rounded-xl p-4 smooth-transition hover:border-blue-300 bg-white flex flex-col">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-500">${crit.level.split('(')[0]}</span>
+                                <span class="level-badge bg-gray-100 text-gray-500 text-xs font-bold px-2 py-1 rounded-full smooth-transition">Poin ${pointValue}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2 flex-grow">${crit.desc}</p>
+                        </div>
+                    </label>
+                `;
+            });
+            cards += '</div>';
+            
+            section.innerHTML = header + cards;
+            container.appendChild(section);
+        });
+
+        // Update skor total secara real-time
+        function updateScore(aspectId, score, weight) {
+            currentScores[aspectId] = (score * (weight / 100));
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            for (let key in currentScores) {
+                total += currentScores[key];
+            }
+            // Pembulatan ke 2 desimal
+            total = Math.round(total * 100) / 100;
+            document.getElementById('display-total-score').innerHTML = `${total} <span class="text-sm text-gray-400 font-normal">/ 100</span>`;
+            document.getElementById('total_score_input').value = total;
+        }
+
+        
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // PERHATIAN: Ganti URL di bawah ini dengan URL Web App Apps Script Anda
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwbahUYp6ePXicj_VMM5SnCM8gOO2TZ9kcgQ04ZneXNObB7grL68QejMgOgZia6exEn/exec'; 
+        
+        const form = document.forms['submit-to-google-sheet'];
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = submitBtn.querySelector('span');
+        const spinner = document.getElementById('loading-spinner');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            // Validasi apakah URL sudah diganti (opsional, untuk mencegah error dummy)
+            if(scriptURL.includes('GANTI_INI')) {
+                alert("PENTING: Anda belum memasukkan URL Google Apps Script Anda.\n\nKlik 'Cara Setting Spreadsheet' di pojok kanan atas.");
+                return;
+            }
+
+            // Tampilkan state loading
+            submitBtn.disabled = true;
+            btnText.textContent = 'Menyimpan...';
+            spinner.classList.remove('hidden');
+
+            fetch(scriptURL, { 
+                method: 'POST', 
+                body: new FormData(form)
+            })
+            .then(response => {
+                // Tampilkan custom modal / alert UI yang ramah (tidak pakai native alert sesuai rule)
+                showNotification("Berhasil!", "Data penilaian telah tersimpan ke spreadsheet.", "success");
+                form.reset();
+                // Reset skor lokal
+                for (let key in currentScores) currentScores[key] = 0;
+                calculateTotal();
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                showNotification("Gagal Terkirim", "Pastikan URL Apps Script sudah benar dan internet stabil.", "error");
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Simpan Penilaian';
+                spinner.classList.add('hidden');
+            });
+        });
+
+        // Simple Custom Notification System
+        function showNotification(title, message, type) {
+            const notif = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            
+            notif.className = `fixed top-20 right-4 p-4 rounded-lg border shadow-lg z-[100] transform transition-transform duration-300 translate-x-full ${bgColor}`;
+            notif.innerHTML = `
+                <h4 class="font-bold ${textColor}">${title}</h4>
+                <p class="text-sm ${textColor} opacity-80">${message}</p>
+            `;
+            document.body.appendChild(notif);
+            
+            // Slide in
+            requestAnimationFrame(() => {
+                notif.classList.remove('translate-x-full');
+            });
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notif.classList.add('translate-x-full');
+                setTimeout(() => notif.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
